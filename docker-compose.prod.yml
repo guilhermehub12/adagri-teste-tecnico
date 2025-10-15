@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: adagri_postgres_prod
+    environment:
+      POSTGRES_DB: adagri_db
+      POSTGRES_USER: adagri_user
+      POSTGRES_PASSWORD: adagri_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - adagri_network_prod
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: adagri_app_prod
+    depends_on:
+      - postgres
+    networks:
+      - adagri_network_prod
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: adagri_nginx_prod
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - adagri_network_prod
+    restart: unless-stopped
+
+networks:
+  adagri_network_prod:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
+    driver: local

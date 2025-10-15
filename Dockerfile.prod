@@ -1,0 +1,50 @@
+FROM php:8.3-fpm-alpine AS builder
+
+RUN apk add --no-cache \
+    postgresql-dev \
+    oniguruma-dev \
+    icu-dev \
+    libzip-dev \
+    libpng-dev
+
+RUN docker-php-ext-install \
+    pdo \
+    pdo_pgsql \
+    pgsql \
+    mbstring \
+    zip \
+    intl
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+COPY api/composer.json api/composer.lock ./
+
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+COPY api/ ./
+
+RUN composer dump-autoload --optimize --no-dev --no-scripts
+
+FROM php:8.3-fpm-alpine
+
+RUN apk add --no-cache \
+    postgresql-libs \
+    libzip \
+    icu-libs \
+    oniguruma
+
+COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20230831/ /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+
+WORKDIR /var/www/html
+
+COPY --from=builder /var/www/html ./
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

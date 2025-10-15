@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: adagri_postgres
+    environment:
+      POSTGRES_DB: adagri_db
+      POSTGRES_USER: adagri_user
+      POSTGRES_PASSWORD: adagri_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - adagri_network
+
+  app:
+    build:
+      context: ./api
+      dockerfile: ../Dockerfile
+    container_name: adagri_app
+    volumes:
+      - ./api:/var/www/html
+    depends_on:
+      - postgres
+    networks:
+      - adagri_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: adagri_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./api:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - adagri_network
+
+networks:
+  adagri_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
