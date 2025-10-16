@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('especie');
             $table->integer('quantidade');
             $table->string('finalidade')->nullable();
-            $table->timestamp('data_atualizacao')->useCurrent();
+            $table->timestamp('data_atualizacao')->nullable();
             $table->foreignId('propriedade_id')->constrained('propriedades')->onDelete('cascade');
             $table->timestamps();
         });
