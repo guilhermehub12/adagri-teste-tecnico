@@ -16,7 +16,8 @@ RUN docker-php-ext-install \
     pgsql \
     mbstring \
     zip \
-    intl
+    intl \
+    gd
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

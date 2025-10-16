@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\PropriedadesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePropriedadeRequest;
 use App\Http\Requests\UpdatePropriedadeRequest;
 use App\Http\Resources\PropriedadeResource;
 use App\Models\Propriedade;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PropriedadeController extends Controller
 {
@@ -39,5 +43,12 @@ class PropriedadeController extends Controller
     {
         $propriedade->delete();
         return response()->noContent();
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['municipio', 'produtor_id']);
+
+        return Excel::download(new PropriedadesExport($filters), 'propriedades.xlsx');
     }
 }

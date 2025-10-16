@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('produtores-rurais', ProdutorRuralController::class)
     ->parameters(['produtores-rurais' => 'produtor-rural']);
 
+Route::get('propriedades/export/excel', [PropriedadeController::class, 'export']);
 Route::apiResource('propriedades', PropriedadeController::class);
 
 Route::apiResource('unidades-producao', UnidadeProducaoController::class)
