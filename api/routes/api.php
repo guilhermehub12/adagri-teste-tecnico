@@ -16,6 +16,7 @@ Route::apiResource('propriedades', PropriedadeController::class);
 Route::apiResource('unidades-producao', UnidadeProducaoController::class)
     ->parameters(['unidades-producao' => 'unidade-producao']);
 
+Route::get('rebanhos/export/pdf', [RebanhoController::class, 'exportPdf']);
 Route::apiResource('rebanhos', RebanhoController::class);
 
 Route::get('/user', function (Request $request) {

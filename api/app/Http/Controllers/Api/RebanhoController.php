@@ -7,8 +7,11 @@ use App\Http\Requests\StoreRebanhoRequest;
 use App\Http\Requests\UpdateRebanhoRequest;
 use App\Http\Resources\RebanhoResource;
 use App\Models\Rebanho;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class RebanhoController extends Controller
 {
@@ -39,5 +42,35 @@ class RebanhoController extends Controller
     {
         $rebanho->delete();
         return response()->noContent();
+    }
+
+    public function exportPdf(Request $request): HttpResponse
+    {
+        $filters = $request->only(['especie', 'propriedade_id', 'produtor_id']);
+
+        $query = Rebanho::with('propriedade.produtor');
+
+        if (!empty($filters['especie'])) {
+            $query->where('especie', $filters['especie']);
+        }
+
+        if (!empty($filters['propriedade_id'])) {
+            $query->where('propriedade_id', $filters['propriedade_id']);
+        }
+
+        if (!empty($filters['produtor_id'])) {
+            $query->whereHas('propriedade', function ($q) use ($filters) {
+                $q->where('produtor_id', $filters['produtor_id']);
+            });
+        }
+
+        $rebanhos = $query->get();
+
+        $pdf = Pdf::loadView('exports.rebanhos', [
+            'rebanhos' => $rebanhos,
+            'filtros' => $filters,
+        ]);
+
+        return $pdf->download('rebanhos.pdf');
     }
 }
