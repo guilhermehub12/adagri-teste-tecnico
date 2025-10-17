@@ -22,6 +22,7 @@ Route::apiResource('rebanhos', RebanhoController::class);
 
 Route::get('relatorios/propriedades-por-municipio', [RelatorioController::class, 'propriedadesPorMunicipio']);
 Route::get('relatorios/animais-por-especie', [RelatorioController::class, 'animaisPorEspecie']);
+Route::get('relatorios/hectares-por-cultura', [RelatorioController::class, 'hectaresPorCultura']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
