@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RelatorioAnimaisEspecieResource;
 use App\Http\Resources\RelatorioPropriedadesMunicipioResource;
 use App\Models\Propriedade;
+use App\Models\Rebanho;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -34,5 +36,26 @@ class RelatorioController extends Controller
         $resultados = $query->orderBy('municipio', 'asc')->get();
 
         return RelatorioPropriedadesMunicipioResource::collection($resultados);
+    }
+
+    public function animaisPorEspecie(Request $request): AnonymousResourceCollection
+    {
+        $query = Rebanho::select(
+            'especie',
+            DB::raw('SUM(quantidade) as total_animais'),
+            DB::raw('COUNT(*) as total_rebanhos'),
+            DB::raw('COUNT(DISTINCT propriedade_id) as total_propriedades'),
+            DB::raw('AVG(quantidade) as media_animais_por_rebanho')
+        )
+            ->groupBy('especie');
+
+        // Aplicar filtro por espécie
+        if ($request->filled('especie')) {
+            $query->where('especie', $request->input('especie'));
+        }
+
+        $resultados = $query->orderBy('especie', 'asc')->get();
+
+        return RelatorioAnimaisEspecieResource::collection($resultados);
     }
 }

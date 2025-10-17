@@ -21,6 +21,7 @@ Route::get('rebanhos/export/pdf', [RebanhoController::class, 'exportPdf']);
 Route::apiResource('rebanhos', RebanhoController::class);
 
 Route::get('relatorios/propriedades-por-municipio', [RelatorioController::class, 'propriedadesPorMunicipio']);
+Route::get('relatorios/animais-por-especie', [RelatorioController::class, 'animaisPorEspecie']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
