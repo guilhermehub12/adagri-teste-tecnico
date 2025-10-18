@@ -1,0 +1,1023 @@
+{
+	"info": {
+		"_postman_id": "adagri-api-collection",
+		"name": "ADAGRI API - Sistema de Gestão Agropecuária",
+		"description": "Collection completa da API ADAGRI com autenticação baseada em perfis (Admin, Gestor, Técnico, Extensionista)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "1. Autenticação",
+			"item": [
+				{
+					"name": "Register (Novo Usuário)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    pm.collectionVariables.set('user_id', response.user.id);",
+									"    console.log('Token salvo:', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"João Silva\",\n    \"email\": \"joao@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Registra um novo usuário. O perfil padrão é 'extensionista' (somente leitura)."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    pm.collectionVariables.set('user_id', response.user.id);",
+									"    console.log('Token salvo:', response.token);",
+									"    console.log('Usuário:', response.user.name, '- Perfil:', response.user.role_label);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@adagri.ce.gov.br\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Faz login e retorna o token de autenticação."
+					},
+					"response": []
+				},
+				{
+					"name": "Login como Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    console.log('Logado como Admin');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{admin_email}}\",\n    \"password\": \"{{admin_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login rápido como Admin (acesso total)"
+					},
+					"response": []
+				},
+				{
+					"name": "Login como Gestor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    console.log('Logado como Gestor');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{gestor_email}}\",\n    \"password\": \"{{gestor_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login rápido como Gestor (criar, editar, visualizar)"
+					},
+					"response": []
+				},
+				{
+					"name": "Login como Técnico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    console.log('Logado como Técnico');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{tecnico_email}}\",\n    \"password\": \"{{tecnico_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login rápido como Técnico (criar e visualizar)"
+					},
+					"response": []
+				},
+				{
+					"name": "Login como Extensionista",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    console.log('Logado como Extensionista');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{extensionista_email}}\",\n    \"password\": \"{{extensionista_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login rápido como Extensionista (somente leitura)"
+					},
+					"response": []
+				},
+				{
+					"name": "Me (Perfil do Usuário)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "me"]
+						},
+						"description": "Retorna os dados do usuário autenticado."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "Faz logout e revoga o token atual."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticação e gestão de sessão"
+		},
+		{
+			"name": "2. Gerenciamento de Usuários (Admin Only)",
+			"item": [
+				{
+					"name": "Listar Usuários",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": ["{{base_url}}"],
+							"path": ["users"]
+						},
+						"description": "Lista todos os usuários (paginado). Requer perfil: Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('created_user_id', response.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Maria Santos\",\n    \"email\": \"maria.santos@adagri.ce.gov.br\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"gestor\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": ["{{base_url}}"],
+							"path": ["users"]
+						},
+						"description": "Cria um novo usuário com perfil específico. Requer perfil: Admin.\nRoles disponíveis: admin, gestor, tecnico, extensionista"
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Usuário",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{created_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["users", "{{created_user_id}}"]
+						},
+						"description": "Visualiza detalhes de um usuário. Requer perfil: Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Usuário",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Maria Santos Silva\",\n    \"email\": \"maria.santos@adagri.ce.gov.br\",\n    \"role\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{created_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["users", "{{created_user_id}}"]
+						},
+						"description": "Atualiza dados de um usuário. Pode alterar nome, email, role e senha (opcional). Requer perfil: Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Usuário",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{created_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["users", "{{created_user_id}}"]
+						},
+						"description": "Remove um usuário do sistema. Requer perfil: Admin"
+					},
+					"response": []
+				}
+			],
+			"description": "Gerenciamento de usuários (somente administradores)"
+		},
+		{
+			"name": "3. Produtores Rurais",
+			"item": [
+				{
+					"name": "Listar Produtores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/produtores-rurais",
+							"host": ["{{base_url}}"],
+							"path": ["produtores-rurais"]
+						},
+						"description": "Lista todos os produtores rurais"
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Produtor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('produtor_id', response.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"José Alves da Silva\",\n    \"cpf_cnpj\": \"123.456.789-00\",\n    \"telefone\": \"(85) 98765-4321\",\n    \"email\": \"jose.silva@gmail.com\",\n    \"endereco\": \"Rua das Flores, 123 - Fortaleza/CE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/produtores-rurais",
+							"host": ["{{base_url}}"],
+							"path": ["produtores-rurais"]
+						},
+						"description": "Cria um novo produtor rural. Requer perfil: Admin, Gestor ou Técnico"
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Produtor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/produtores-rurais/{{produtor_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["produtores-rurais", "{{produtor_id}}"]
+						},
+						"description": "Visualiza detalhes de um produtor rural"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Produtor",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"José Alves da Silva Filho\",\n    \"cpf_cnpj\": \"123.456.789-00\",\n    \"telefone\": \"(85) 98888-7777\",\n    \"email\": \"jose.silva.filho@gmail.com\",\n    \"endereco\": \"Rua das Flores, 123 - Fortaleza/CE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/produtores-rurais/{{produtor_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["produtores-rurais", "{{produtor_id}}"]
+						},
+						"description": "Atualiza dados de um produtor rural. Requer perfil: Admin ou Gestor"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Produtor",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/produtores-rurais/{{produtor_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["produtores-rurais", "{{produtor_id}}"]
+						},
+						"description": "Remove um produtor rural. Requer perfil: Admin"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD de Produtores Rurais"
+		},
+		{
+			"name": "4. Propriedades",
+			"item": [
+				{
+					"name": "Listar Propriedades",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/propriedades",
+							"host": ["{{base_url}}"],
+							"path": ["propriedades"]
+						},
+						"description": "Lista todas as propriedades"
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Propriedade",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('propriedade_id', response.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Fazenda Boa Vista\",\n    \"municipio\": \"Fortaleza\",\n    \"uf\": \"CE\",\n    \"inscricao_estadual\": \"IE-12345678\",\n    \"area_total\": 150.50,\n    \"produtor_id\": {{produtor_id}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/propriedades",
+							"host": ["{{base_url}}"],
+							"path": ["propriedades"]
+						},
+						"description": "Cria uma nova propriedade. Requer perfil: Admin, Gestor ou Técnico"
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Propriedade",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/propriedades/{{propriedade_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["propriedades", "{{propriedade_id}}"]
+						},
+						"description": "Visualiza detalhes de uma propriedade"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Propriedade",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Fazenda Boa Vista Expandida\",\n    \"municipio\": \"Fortaleza\",\n    \"uf\": \"CE\",\n    \"inscricao_estadual\": \"IE-12345678\",\n    \"area_total\": 250.75,\n    \"produtor_id\": {{produtor_id}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/propriedades/{{propriedade_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["propriedades", "{{propriedade_id}}"]
+						},
+						"description": "Atualiza dados de uma propriedade. Requer perfil: Admin ou Gestor"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Propriedade",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/propriedades/{{propriedade_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["propriedades", "{{propriedade_id}}"]
+						},
+						"description": "Remove uma propriedade. Requer perfil: Admin"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD de Propriedades"
+		},
+		{
+			"name": "5. Unidades de Produção",
+			"item": [
+				{
+					"name": "Listar Unidades",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/unidades-producao",
+							"host": ["{{base_url}}"],
+							"path": ["unidades-producao"]
+						},
+						"description": "Lista todas as unidades de produção"
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Unidade",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('unidade_id', response.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome_cultura\": \"Milho\",\n    \"area_total_ha\": 50.25,\n    \"coordenadas_geograficas\": \"-3.7319, -38.5267\",\n    \"propriedade_id\": {{propriedade_id}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/unidades-producao",
+							"host": ["{{base_url}}"],
+							"path": ["unidades-producao"]
+						},
+						"description": "Cria uma nova unidade de produção. Requer perfil: Admin, Gestor ou Técnico"
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Unidade",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/unidades-producao/{{unidade_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["unidades-producao", "{{unidade_id}}"]
+						},
+						"description": "Visualiza detalhes de uma unidade de produção"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Unidade",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome_cultura\": \"Milho Híbrido\",\n    \"area_total_ha\": 75.50,\n    \"coordenadas_geograficas\": \"-3.7319, -38.5267\",\n    \"propriedade_id\": {{propriedade_id}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/unidades-producao/{{unidade_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["unidades-producao", "{{unidade_id}}"]
+						},
+						"description": "Atualiza dados de uma unidade de produção. Requer perfil: Admin ou Gestor"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Unidade",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/unidades-producao/{{unidade_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["unidades-producao", "{{unidade_id}}"]
+						},
+						"description": "Remove uma unidade de produção. Requer perfil: Admin"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD de Unidades de Produção"
+		},
+		{
+			"name": "6. Rebanhos",
+			"item": [
+				{
+					"name": "Listar Rebanhos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rebanhos",
+							"host": ["{{base_url}}"],
+							"path": ["rebanhos"]
+						},
+						"description": "Lista todos os rebanhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Rebanho",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('rebanho_id', response.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"especie\": \"Bovino\",\n    \"quantidade\": 150,\n    \"finalidade\": \"Corte\",\n    \"data_atualizacao\": \"2025-10-18\",\n    \"propriedade_id\": {{propriedade_id}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/rebanhos",
+							"host": ["{{base_url}}"],
+							"path": ["rebanhos"]
+						},
+						"description": "Cria um novo rebanho. Requer perfil: Admin, Gestor ou Técnico"
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Rebanho",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rebanhos/{{rebanho_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rebanhos", "{{rebanho_id}}"]
+						},
+						"description": "Visualiza detalhes de um rebanho"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Rebanho",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"especie\": \"Bovino\",\n    \"quantidade\": 200,\n    \"finalidade\": \"Corte\",\n    \"data_atualizacao\": \"2025-10-18\",\n    \"propriedade_id\": {{propriedade_id}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/rebanhos/{{rebanho_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rebanhos", "{{rebanho_id}}"]
+						},
+						"description": "Atualiza dados de um rebanho. Requer perfil: Admin ou Gestor"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Rebanho",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rebanhos/{{rebanho_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rebanhos", "{{rebanho_id}}"]
+						},
+						"description": "Remove um rebanho. Requer perfil: Admin"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD de Rebanhos"
+		},
+		{
+			"name": "7. Relatórios",
+			"item": [
+				{
+					"name": "Propriedades por Município",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/relatorios/propriedades-por-municipio?uf=CE",
+							"host": ["{{base_url}}"],
+							"path": ["relatorios", "propriedades-por-municipio"],
+							"query": [
+								{
+									"key": "uf",
+									"value": "CE",
+									"description": "Filtrar por UF (opcional)"
+								},
+								{
+									"key": "municipio",
+									"value": "Fortaleza",
+									"description": "Filtrar por município (opcional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Relatório de propriedades agrupadas por município com totais"
+					},
+					"response": []
+				},
+				{
+					"name": "Animais por Espécie",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/relatorios/animais-por-especie",
+							"host": ["{{base_url}}"],
+							"path": ["relatorios", "animais-por-especie"],
+							"query": [
+								{
+									"key": "especie",
+									"value": "Bovino",
+									"description": "Filtrar por espécie (opcional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Relatório de rebanhos agrupados por espécie com totais"
+					},
+					"response": []
+				},
+				{
+					"name": "Hectares por Cultura",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/relatorios/hectares-por-cultura",
+							"host": ["{{base_url}}"],
+							"path": ["relatorios", "hectares-por-cultura"],
+							"query": [
+								{
+									"key": "cultura",
+									"value": "Milho",
+									"description": "Filtrar por cultura (opcional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Relatório de unidades de produção agrupadas por cultura com totais"
+					},
+					"response": []
+				}
+			],
+			"description": "Relatórios estatísticos"
+		},
+		{
+			"name": "8. Exportações",
+			"item": [
+				{
+					"name": "Exportar Propriedades (Excel)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/propriedades/export/excel",
+							"host": ["{{base_url}}"],
+							"path": ["propriedades", "export", "excel"],
+							"query": [
+								{
+									"key": "municipio",
+									"value": "Fortaleza",
+									"description": "Filtrar por município (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "uf",
+									"value": "CE",
+									"description": "Filtrar por UF (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "produtor_id",
+									"value": "1",
+									"description": "Filtrar por produtor (opcional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Exporta propriedades para Excel (.xlsx) com filtros opcionais"
+					},
+					"response": []
+				},
+				{
+					"name": "Exportar Rebanhos (PDF)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rebanhos/export/pdf",
+							"host": ["{{base_url}}"],
+							"path": ["rebanhos", "export", "pdf"],
+							"query": [
+								{
+									"key": "especie",
+									"value": "Bovino",
+									"description": "Filtrar por espécie (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "propriedade_id",
+									"value": "1",
+									"description": "Filtrar por propriedade (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "produtor_id",
+									"value": "1",
+									"description": "Filtrar por produtor (opcional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Exporta rebanhos para PDF com filtros opcionais"
+					},
+					"response": []
+				}
+			],
+			"description": "Exportação de dados em Excel e PDF"
+		}
+	],
+	"variable": [
+		{
+			"key": "produtor_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "propriedade_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "unidade_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "rebanho_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "created_user_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
