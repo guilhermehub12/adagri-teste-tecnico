@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
+use App\Models\User;
+
 use App\Models\Propriedade;
 use App\Models\Rebanho;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,11 +14,19 @@ class RebanhoControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::GESTOR): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_pode_listar_todos_os_rebanhos(): void
     {
         Rebanho::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/rebanhos');
+        $response = $this->getJson('/api/rebanhos', $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data')
@@ -47,7 +58,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -74,7 +85,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['especie']);
@@ -89,7 +100,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['quantidade']);
@@ -105,7 +116,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['quantidade']);
@@ -121,7 +132,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['quantidade']);
@@ -134,7 +145,7 @@ class RebanhoControllerTest extends TestCase
             'quantidade' => 1000,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['propriedade_id']);
@@ -148,7 +159,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => 999,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['propriedade_id']);
@@ -164,7 +175,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -186,7 +197,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/rebanhos', $dados);
+        $response = $this->postJson('/api/rebanhos', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -205,7 +216,7 @@ class RebanhoControllerTest extends TestCase
             'finalidade' => 'Lã',
         ]);
 
-        $response = $this->getJson("/api/rebanhos/{$rebanho->id}");
+        $response = $this->getJson("/api/rebanhos/{$rebanho->id}", $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -220,7 +231,7 @@ class RebanhoControllerTest extends TestCase
 
     public function test_retorna_404_ao_buscar_rebanho_inexistente(): void
     {
-        $response = $this->getJson('/api/rebanhos/999');
+        $response = $this->getJson('/api/rebanhos/999', $this->authHeaders());
 
         $response->assertStatus(404);
     }
@@ -241,7 +252,7 @@ class RebanhoControllerTest extends TestCase
             'propriedade_id' => $rebanho->propriedade_id,
         ];
 
-        $response = $this->putJson("/api/rebanhos/{$rebanho->id}", $dadosAtualizados);
+        $response = $this->putJson("/api/rebanhos/{$rebanho->id}", $dadosAtualizados, $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -262,7 +273,7 @@ class RebanhoControllerTest extends TestCase
     {
         $rebanho = Rebanho::factory()->create();
 
-        $response = $this->deleteJson("/api/rebanhos/{$rebanho->id}");
+        $response = $this->deleteJson("/api/rebanhos/{$rebanho->id}", [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(204);
 
@@ -273,7 +284,7 @@ class RebanhoControllerTest extends TestCase
 
     public function test_retorna_404_ao_deletar_rebanho_inexistente(): void
     {
-        $response = $this->deleteJson('/api/rebanhos/999');
+        $response = $this->deleteJson('/api/rebanhos/999', [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(404);
     }

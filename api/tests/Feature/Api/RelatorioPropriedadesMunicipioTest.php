@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
+use App\Models\User;
+
 use App\Models\ProdutorRural;
 use App\Models\Propriedade;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,11 +14,19 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::EXTENSIONISTA): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_endpoint_retorna_200_com_dados_agrupados(): void
     {
         Propriedade::factory()->count(3)->create(['municipio' => 'Fortaleza', 'uf' => 'CE']);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -36,7 +47,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
         Propriedade::factory()->count(3)->create(['municipio' => 'Fortaleza', 'uf' => 'CE']);
         Propriedade::factory()->count(2)->create(['municipio' => 'Caucaia', 'uf' => 'CE']);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(2, 'data');
@@ -47,7 +58,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
         Propriedade::factory()->count(5)->create(['municipio' => 'Fortaleza', 'uf' => 'CE']);
         Propriedade::factory()->count(3)->create(['municipio' => 'Caucaia', 'uf' => 'CE']);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -64,7 +75,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
         Propriedade::factory()->create(['municipio' => 'Fortaleza', 'uf' => 'CE', 'area_total' => 200.75]);
         Propriedade::factory()->create(['municipio' => 'Caucaia', 'uf' => 'CE', 'area_total' => 150.25]);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -89,7 +100,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
         // 1 propriedade em Caucaia com 1 produtor
         Propriedade::factory()->create(['municipio' => 'Caucaia', 'uf' => 'CE', 'produtor_id' => $produtor3->id]);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -106,7 +117,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
         Propriedade::factory()->create(['municipio' => 'Caucaia', 'uf' => 'CE']);
         Propriedade::factory()->create(['municipio' => 'Aquiraz', 'uf' => 'CE']);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -120,7 +131,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
         Propriedade::factory()->count(3)->create(['municipio' => 'Fortaleza', 'uf' => 'CE']);
         Propriedade::factory()->count(2)->create(['municipio' => 'São Paulo', 'uf' => 'SP']);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio?uf=CE');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio?uf=CE', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -135,7 +146,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
         Propriedade::factory()->count(3)->create(['municipio' => 'Fortaleza', 'uf' => 'CE']);
         Propriedade::factory()->count(2)->create(['municipio' => 'Caucaia', 'uf' => 'CE']);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio?municipio=Fortaleza');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio?municipio=Fortaleza', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -147,7 +158,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
 
     public function test_retorna_array_vazio_quando_nao_ha_dados(): void
     {
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(0, 'data');
@@ -161,7 +172,7 @@ class RelatorioPropriedadesMunicipioTest extends TestCase
             'area_total' => 100.50,
         ]);
 
-        $response = $this->getJson('/api/relatorios/propriedades-por-municipio');
+        $response = $this->getJson('/api/relatorios/propriedades-por-municipio', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonStructure([

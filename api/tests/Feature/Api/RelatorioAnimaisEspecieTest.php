@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
+use App\Models\User;
+
 use App\Models\Propriedade;
 use App\Models\Rebanho;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,11 +14,19 @@ class RelatorioAnimaisEspecieTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::EXTENSIONISTA): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_endpoint_retorna_200_com_dados_agrupados(): void
     {
         Rebanho::factory()->count(3)->create(['especie' => 'Bovino']);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -37,7 +48,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
         Rebanho::factory()->count(2)->create(['especie' => 'Caprino']);
         Rebanho::factory()->create(['especie' => 'Ovino']);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(3, 'data');
@@ -54,7 +65,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
         Rebanho::factory()->create(['especie' => 'Bovino', 'quantidade' => 150]);
         Rebanho::factory()->create(['especie' => 'Caprino', 'quantidade' => 80]);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -70,7 +81,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
         Rebanho::factory()->count(5)->create(['especie' => 'Bovino']);
         Rebanho::factory()->count(3)->create(['especie' => 'Caprino']);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -96,7 +107,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
         Rebanho::factory()->create(['especie' => 'Caprino', 'propriedade_id' => $propriedade2->id]);
         Rebanho::factory()->create(['especie' => 'Caprino', 'propriedade_id' => $propriedade3->id]);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -113,7 +124,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
         Rebanho::factory()->create(['especie' => 'Bovino', 'quantidade' => 200]);
         Rebanho::factory()->create(['especie' => 'Bovino', 'quantidade' => 300]);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -128,7 +139,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
         Rebanho::factory()->create(['especie' => 'Bovino']);
         Rebanho::factory()->create(['especie' => 'Caprino']);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -142,7 +153,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
         Rebanho::factory()->count(3)->create(['especie' => 'Bovino', 'quantidade' => 100]);
         Rebanho::factory()->count(2)->create(['especie' => 'Caprino', 'quantidade' => 50]);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie?especie=Bovino');
+        $response = $this->getJson('/api/relatorios/animais-por-especie?especie=Bovino', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -155,7 +166,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
 
     public function test_retorna_array_vazio_quando_nao_ha_dados(): void
     {
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(0, 'data');
@@ -168,7 +179,7 @@ class RelatorioAnimaisEspecieTest extends TestCase
             'quantidade' => 150,
         ]);
 
-        $response = $this->getJson('/api/relatorios/animais-por-especie');
+        $response = $this->getJson('/api/relatorios/animais-por-especie', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonStructure([

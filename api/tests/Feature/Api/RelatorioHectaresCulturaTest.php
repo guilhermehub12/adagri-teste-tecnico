@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
+use App\Models\User;
+
 use App\Models\Propriedade;
 use App\Models\UnidadeProducao;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,11 +14,19 @@ class RelatorioHectaresCulturaTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::EXTENSIONISTA): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_endpoint_retorna_200_com_dados_agrupados(): void
     {
         UnidadeProducao::factory()->count(3)->create(['nome_cultura' => 'Milho']);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -37,7 +48,7 @@ class RelatorioHectaresCulturaTest extends TestCase
         UnidadeProducao::factory()->count(2)->create(['nome_cultura' => 'Soja']);
         UnidadeProducao::factory()->create(['nome_cultura' => 'Feijão']);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(3, 'data');
@@ -54,7 +65,7 @@ class RelatorioHectaresCulturaTest extends TestCase
         UnidadeProducao::factory()->create(['nome_cultura' => 'Milho', 'area_total_ha' => 75.25]);
         UnidadeProducao::factory()->create(['nome_cultura' => 'Soja', 'area_total_ha' => 120.0]);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -70,7 +81,7 @@ class RelatorioHectaresCulturaTest extends TestCase
         UnidadeProducao::factory()->count(7)->create(['nome_cultura' => 'Milho']);
         UnidadeProducao::factory()->count(4)->create(['nome_cultura' => 'Soja']);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -96,7 +107,7 @@ class RelatorioHectaresCulturaTest extends TestCase
         UnidadeProducao::factory()->create(['nome_cultura' => 'Soja', 'propriedade_id' => $propriedade2->id]);
         UnidadeProducao::factory()->create(['nome_cultura' => 'Soja', 'propriedade_id' => $propriedade3->id]);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -113,7 +124,7 @@ class RelatorioHectaresCulturaTest extends TestCase
         UnidadeProducao::factory()->create(['nome_cultura' => 'Milho', 'area_total_ha' => 200.0]);
         UnidadeProducao::factory()->create(['nome_cultura' => 'Milho', 'area_total_ha' => 300.0]);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -128,7 +139,7 @@ class RelatorioHectaresCulturaTest extends TestCase
         UnidadeProducao::factory()->create(['nome_cultura' => 'Feijão']);
         UnidadeProducao::factory()->create(['nome_cultura' => 'Milho']);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -142,7 +153,7 @@ class RelatorioHectaresCulturaTest extends TestCase
         UnidadeProducao::factory()->count(5)->create(['nome_cultura' => 'Milho', 'area_total_ha' => 50.0]);
         UnidadeProducao::factory()->count(3)->create(['nome_cultura' => 'Soja', 'area_total_ha' => 80.0]);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura?cultura=Milho');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura?cultura=Milho', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -155,7 +166,7 @@ class RelatorioHectaresCulturaTest extends TestCase
 
     public function test_retorna_array_vazio_quando_nao_ha_dados(): void
     {
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonCount(0, 'data');
@@ -168,7 +179,7 @@ class RelatorioHectaresCulturaTest extends TestCase
             'area_total_ha' => 125.5,
         ]);
 
-        $response = $this->getJson('/api/relatorios/hectares-por-cultura');
+        $response = $this->getJson('/api/relatorios/hectares-por-cultura', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonStructure([

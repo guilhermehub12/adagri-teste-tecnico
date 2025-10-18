@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
+use App\Models\User;
+
 use App\Models\ProdutorRural;
 use App\Models\Propriedade;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,11 +15,19 @@ class ExportPropriedadeTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::GESTOR): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_endpoint_de_exportacao_retorna_200(): void
     {
         Propriedade::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/propriedades/export/excel');
+        $response = $this->getJson('/api/propriedades/export/excel', $this->authHeaders());
 
         $response->assertStatus(200);
     }
@@ -25,7 +36,7 @@ class ExportPropriedadeTest extends TestCase
     {
         Propriedade::factory()->count(2)->create();
 
-        $response = $this->getJson('/api/propriedades/export/excel');
+        $response = $this->getJson('/api/propriedades/export/excel', $this->authHeaders());
 
         $response->assertStatus(200);
         $this->assertEquals(
@@ -38,7 +49,7 @@ class ExportPropriedadeTest extends TestCase
     {
         Propriedade::factory()->count(2)->create();
 
-        $response = $this->getJson('/api/propriedades/export/excel');
+        $response = $this->getJson('/api/propriedades/export/excel', $this->authHeaders());
 
         $response->assertStatus(200);
         $this->assertStringContainsString(
@@ -66,7 +77,7 @@ class ExportPropriedadeTest extends TestCase
             'produtor_id' => $produtor->id,
         ]);
 
-        $this->getJson('/api/propriedades/export/excel');
+        $this->getJson('/api/propriedades/export/excel', $this->authHeaders());
 
         Excel::assertDownloaded('propriedades.xlsx', function($export) {
             $headings = $export->headings();
@@ -89,7 +100,7 @@ class ExportPropriedadeTest extends TestCase
         Propriedade::factory()->create(['municipio' => 'Fortaleza']);
         Propriedade::factory()->create(['municipio' => 'Sobral']);
 
-        $this->getJson('/api/propriedades/export/excel?municipio=Fortaleza');
+        $this->getJson('/api/propriedades/export/excel?municipio=Fortaleza', $this->authHeaders());
 
         Excel::assertDownloaded('propriedades.xlsx', function($export) {
             $collection = $export->collection();
@@ -120,7 +131,7 @@ class ExportPropriedadeTest extends TestCase
         Propriedade::factory()->count(2)->create(['produtor_id' => $produtor1->id]);
         Propriedade::factory()->create(['produtor_id' => $produtor2->id]);
 
-        $this->getJson("/api/propriedades/export/excel?produtor_id={$produtor1->id}");
+        $this->getJson("/api/propriedades/export/excel?produtor_id={$produtor1->id}", $this->authHeaders());
 
         Excel::assertDownloaded('propriedades.xlsx', function($export) use ($produtor1) {
             $collection = $export->collection();
@@ -164,7 +175,7 @@ class ExportPropriedadeTest extends TestCase
             'municipio' => 'Fortaleza',
         ]);
 
-        $this->getJson("/api/propriedades/export/excel?produtor_id={$produtor1->id}&municipio=Fortaleza");
+        $this->getJson("/api/propriedades/export/excel?produtor_id={$produtor1->id}&municipio=Fortaleza", $this->authHeaders());
 
         Excel::assertDownloaded('propriedades.xlsx', function($export) use ($produtor1) {
             $collection = $export->collection();
@@ -195,7 +206,7 @@ class ExportPropriedadeTest extends TestCase
             'produtor_id' => $produtor->id,
         ]);
 
-        $this->getJson('/api/propriedades/export/excel');
+        $this->getJson('/api/propriedades/export/excel', $this->authHeaders());
 
         Excel::assertDownloaded('propriedades.xlsx', function($export) use ($propriedade, $produtor) {
             $collection = $export->collection();

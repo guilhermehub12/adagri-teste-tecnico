@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
+use App\Models\User;
+
 use App\Models\ProdutorRural;
 use App\Models\Propriedade;
 use App\Models\UnidadeProducao;
@@ -12,11 +15,19 @@ class UnidadeProducaoControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::GESTOR): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_pode_listar_todas_as_unidades_producao(): void
     {
         UnidadeProducao::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/unidades-producao');
+        $response = $this->getJson('/api/unidades-producao', $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data')
@@ -46,7 +57,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/unidades-producao', $dados);
+        $response = $this->postJson('/api/unidades-producao', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -72,7 +83,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/unidades-producao', $dados);
+        $response = $this->postJson('/api/unidades-producao', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['nome_cultura']);
@@ -87,7 +98,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/unidades-producao', $dados);
+        $response = $this->postJson('/api/unidades-producao', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['area_total_ha']);
@@ -103,7 +114,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/unidades-producao', $dados);
+        $response = $this->postJson('/api/unidades-producao', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['area_total_ha']);
@@ -116,7 +127,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'area_total_ha' => 50.00,
         ];
 
-        $response = $this->postJson('/api/unidades-producao', $dados);
+        $response = $this->postJson('/api/unidades-producao', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['propriedade_id']);
@@ -130,7 +141,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'propriedade_id' => 999,
         ];
 
-        $response = $this->postJson('/api/unidades-producao', $dados);
+        $response = $this->postJson('/api/unidades-producao', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['propriedade_id']);
@@ -146,7 +157,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'propriedade_id' => $propriedade->id,
         ];
 
-        $response = $this->postJson('/api/unidades-producao', $dados);
+        $response = $this->postJson('/api/unidades-producao', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -164,7 +175,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'area_total_ha' => 200.00,
         ]);
 
-        $response = $this->getJson("/api/unidades-producao/{$unidade->id}");
+        $response = $this->getJson("/api/unidades-producao/{$unidade->id}", $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -178,7 +189,7 @@ class UnidadeProducaoControllerTest extends TestCase
 
     public function test_retorna_404_ao_buscar_unidade_producao_inexistente(): void
     {
-        $response = $this->getJson('/api/unidades-producao/999');
+        $response = $this->getJson('/api/unidades-producao/999', $this->authHeaders());
 
         $response->assertStatus(404);
     }
@@ -197,7 +208,7 @@ class UnidadeProducaoControllerTest extends TestCase
             'propriedade_id' => $unidade->propriedade_id,
         ];
 
-        $response = $this->putJson("/api/unidades-producao/{$unidade->id}", $dadosAtualizados);
+        $response = $this->putJson("/api/unidades-producao/{$unidade->id}", $dadosAtualizados, $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -219,7 +230,7 @@ class UnidadeProducaoControllerTest extends TestCase
     {
         $unidade = UnidadeProducao::factory()->create();
 
-        $response = $this->deleteJson("/api/unidades-producao/{$unidade->id}");
+        $response = $this->deleteJson("/api/unidades-producao/{$unidade->id}", [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(204);
 
@@ -230,7 +241,7 @@ class UnidadeProducaoControllerTest extends TestCase
 
     public function test_retorna_404_ao_deletar_unidade_producao_inexistente(): void
     {
-        $response = $this->deleteJson('/api/unidades-producao/999');
+        $response = $this->deleteJson('/api/unidades-producao/999', [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(404);
     }

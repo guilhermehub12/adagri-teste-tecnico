@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
 use App\Models\ProdutorRural;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,11 +12,19 @@ class ProdutorRuralControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::GESTOR): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_pode_listar_todos_os_produtores_rurais(): void
     {
         ProdutorRural::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/produtores-rurais');
+        $response = $this->getJson('/api/produtores-rurais', $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data')
@@ -45,7 +55,7 @@ class ProdutorRuralControllerTest extends TestCase
             'endereco' => 'Rua das Flores, 123',
         ];
 
-        $response = $this->postJson('/api/produtores-rurais', $dados);
+        $response = $this->postJson('/api/produtores-rurais', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -68,7 +78,7 @@ class ProdutorRuralControllerTest extends TestCase
             'cpf_cnpj' => '123.456.789-00',
         ];
 
-        $response = $this->postJson('/api/produtores-rurais', $dados);
+        $response = $this->postJson('/api/produtores-rurais', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['nome']);
@@ -80,7 +90,7 @@ class ProdutorRuralControllerTest extends TestCase
             'nome' => 'Maria Santos',
         ];
 
-        $response = $this->postJson('/api/produtores-rurais', $dados);
+        $response = $this->postJson('/api/produtores-rurais', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['cpf_cnpj']);
@@ -98,7 +108,7 @@ class ProdutorRuralControllerTest extends TestCase
             'cpf_cnpj' => '111.222.333-44',
         ];
 
-        $response = $this->postJson('/api/produtores-rurais', $dados);
+        $response = $this->postJson('/api/produtores-rurais', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['cpf_cnpj']);
@@ -112,7 +122,7 @@ class ProdutorRuralControllerTest extends TestCase
             'email' => 'jose@example.com',
         ]);
 
-        $response = $this->getJson("/api/produtores-rurais/{$produtor->id}");
+        $response = $this->getJson("/api/produtores-rurais/{$produtor->id}", $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -127,7 +137,7 @@ class ProdutorRuralControllerTest extends TestCase
 
     public function test_retorna_404_ao_buscar_produtor_inexistente(): void
     {
-        $response = $this->getJson('/api/produtores-rurais/999');
+        $response = $this->getJson('/api/produtores-rurais/999', $this->authHeaders());
 
         $response->assertStatus(404);
     }
@@ -147,7 +157,7 @@ class ProdutorRuralControllerTest extends TestCase
             'telefone' => '(85) 91111-2222',
         ];
 
-        $response = $this->putJson("/api/produtores-rurais/{$produtor->id}", $dadosAtualizados);
+        $response = $this->putJson("/api/produtores-rurais/{$produtor->id}", $dadosAtualizados, $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -182,7 +192,7 @@ class ProdutorRuralControllerTest extends TestCase
             'cpf_cnpj' => '111.111.111-11',
         ];
 
-        $response = $this->putJson("/api/produtores-rurais/{$produtor2->id}", $dadosAtualizados);
+        $response = $this->putJson("/api/produtores-rurais/{$produtor2->id}", $dadosAtualizados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['cpf_cnpj']);
@@ -195,7 +205,7 @@ class ProdutorRuralControllerTest extends TestCase
             'cpf_cnpj' => '444.555.666-77',
         ]);
 
-        $response = $this->deleteJson("/api/produtores-rurais/{$produtor->id}");
+        $response = $this->deleteJson("/api/produtores-rurais/{$produtor->id}", [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(204);
 
@@ -206,7 +216,7 @@ class ProdutorRuralControllerTest extends TestCase
 
     public function test_retorna_404_ao_deletar_produtor_inexistente(): void
     {
-        $response = $this->deleteJson('/api/produtores-rurais/999');
+        $response = $this->deleteJson('/api/produtores-rurais/999', [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(404);
     }
@@ -219,7 +229,7 @@ class ProdutorRuralControllerTest extends TestCase
             'email' => 'email-invalido',
         ];
 
-        $response = $this->postJson('/api/produtores-rurais', $dados);
+        $response = $this->postJson('/api/produtores-rurais', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['email']);
@@ -232,7 +242,7 @@ class ProdutorRuralControllerTest extends TestCase
             'cpf_cnpj' => '333.444.555-66',
         ];
 
-        $response = $this->postJson('/api/produtores-rurais', $dados);
+        $response = $this->postJson('/api/produtores-rurais', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([

@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
+use App\Models\User;
+
 use App\Models\ProdutorRural;
 use App\Models\Propriedade;
 use App\Models\Rebanho;
@@ -12,11 +15,19 @@ class ExportRebanhoTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::GESTOR): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_endpoint_de_exportacao_retorna_200(): void
     {
         Rebanho::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/rebanhos/export/pdf');
+        $response = $this->getJson('/api/rebanhos/export/pdf', $this->authHeaders());
 
         $response->assertStatus(200);
     }
@@ -25,7 +36,7 @@ class ExportRebanhoTest extends TestCase
     {
         Rebanho::factory()->count(2)->create();
 
-        $response = $this->getJson('/api/rebanhos/export/pdf');
+        $response = $this->getJson('/api/rebanhos/export/pdf', $this->authHeaders());
 
         $response->assertStatus(200);
         $this->assertEquals(
@@ -38,7 +49,7 @@ class ExportRebanhoTest extends TestCase
     {
         Rebanho::factory()->count(2)->create();
 
-        $response = $this->getJson('/api/rebanhos/export/pdf');
+        $response = $this->getJson('/api/rebanhos/export/pdf', $this->authHeaders());
 
         $response->assertStatus(200);
         $this->assertStringContainsString(
@@ -55,7 +66,7 @@ class ExportRebanhoTest extends TestCase
     {
         Rebanho::factory()->count(2)->create();
 
-        $response = $this->getJson('/api/rebanhos/export/pdf');
+        $response = $this->getJson('/api/rebanhos/export/pdf', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -70,7 +81,7 @@ class ExportRebanhoTest extends TestCase
         Rebanho::factory()->create(['especie' => 'Bovino']);
         Rebanho::factory()->create(['especie' => 'Caprino']);
 
-        $response = $this->getJson('/api/rebanhos/export/pdf?especie=Bovino');
+        $response = $this->getJson('/api/rebanhos/export/pdf?especie=Bovino', $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -87,7 +98,7 @@ class ExportRebanhoTest extends TestCase
         Rebanho::factory()->count(2)->create(['propriedade_id' => $propriedade1->id]);
         Rebanho::factory()->create(['propriedade_id' => $propriedade2->id]);
 
-        $response = $this->getJson("/api/rebanhos/export/pdf?propriedade_id={$propriedade1->id}");
+        $response = $this->getJson("/api/rebanhos/export/pdf?propriedade_id={$propriedade1->id}", $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -114,7 +125,7 @@ class ExportRebanhoTest extends TestCase
             'especie' => 'Bovino',
         ]);
 
-        $response = $this->getJson("/api/rebanhos/export/pdf?propriedade_id={$propriedade1->id}&especie=Bovino");
+        $response = $this->getJson("/api/rebanhos/export/pdf?propriedade_id={$propriedade1->id}&especie=Bovino", $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -136,7 +147,7 @@ class ExportRebanhoTest extends TestCase
         Rebanho::factory()->create(['propriedade_id' => $propriedade2->id]);
         Rebanho::factory()->create(['propriedade_id' => $propriedade3->id]);
 
-        $response = $this->getJson("/api/rebanhos/export/pdf?produtor_id={$produtor1->id}");
+        $response = $this->getJson("/api/rebanhos/export/pdf?produtor_id={$produtor1->id}", $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -166,7 +177,7 @@ class ExportRebanhoTest extends TestCase
             'especie' => 'Bovino',
         ]);
 
-        $response = $this->getJson("/api/rebanhos/export/pdf?produtor_id={$produtor1->id}&especie=Bovino");
+        $response = $this->getJson("/api/rebanhos/export/pdf?produtor_id={$produtor1->id}&especie=Bovino", $this->authHeaders());
 
         $response->assertStatus(200);
 
@@ -179,7 +190,7 @@ class ExportRebanhoTest extends TestCase
     {
         // Não criar nenhum rebanho
 
-        $response = $this->getJson('/api/rebanhos/export/pdf');
+        $response = $this->getJson('/api/rebanhos/export/pdf', $this->authHeaders());
 
         $response->assertStatus(200);
 

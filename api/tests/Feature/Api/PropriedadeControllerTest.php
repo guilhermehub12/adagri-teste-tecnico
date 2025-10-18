@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
 use App\Models\ProdutorRural;
 use App\Models\Propriedade;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,11 +13,19 @@ class PropriedadeControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function authHeaders(UserRole $role = UserRole::GESTOR): array
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        return ['Authorization' => "Bearer {$token}"];
+    }
+
     public function test_pode_listar_todas_as_propriedades(): void
     {
         Propriedade::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/propriedades');
+        $response = $this->getJson('/api/propriedades', $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data')
@@ -49,7 +59,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => $produtor->id,
         ];
 
-        $response = $this->postJson('/api/propriedades', $dados);
+        $response = $this->postJson('/api/propriedades', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -78,7 +88,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => $produtor->id,
         ];
 
-        $response = $this->postJson('/api/propriedades', $dados);
+        $response = $this->postJson('/api/propriedades', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['nome']);
@@ -93,7 +103,7 @@ class PropriedadeControllerTest extends TestCase
             'area_total' => 100,
         ];
 
-        $response = $this->postJson('/api/propriedades', $dados);
+        $response = $this->postJson('/api/propriedades', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['produtor_id']);
@@ -109,7 +119,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => 999,
         ];
 
-        $response = $this->postJson('/api/propriedades', $dados);
+        $response = $this->postJson('/api/propriedades', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['produtor_id']);
@@ -137,7 +147,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => $produtor->id,
         ];
 
-        $response = $this->postJson('/api/propriedades', $dados);
+        $response = $this->postJson('/api/propriedades', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['inscricao_estadual']);
@@ -150,7 +160,7 @@ class PropriedadeControllerTest extends TestCase
             'municipio' => 'Sobral',
         ]);
 
-        $response = $this->getJson("/api/propriedades/{$propriedade->id}");
+        $response = $this->getJson("/api/propriedades/{$propriedade->id}", $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -164,7 +174,7 @@ class PropriedadeControllerTest extends TestCase
 
     public function test_retorna_404_ao_buscar_propriedade_inexistente(): void
     {
-        $response = $this->getJson('/api/propriedades/999');
+        $response = $this->getJson('/api/propriedades/999', $this->authHeaders());
 
         $response->assertStatus(404);
     }
@@ -184,7 +194,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => $propriedade->produtor_id,
         ];
 
-        $response = $this->putJson("/api/propriedades/{$propriedade->id}", $dadosAtualizados);
+        $response = $this->putJson("/api/propriedades/{$propriedade->id}", $dadosAtualizados, $this->authHeaders());
 
         $response->assertStatus(200)
             ->assertJson([
@@ -232,7 +242,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => $produtor->id,
         ];
 
-        $response = $this->putJson("/api/propriedades/{$propriedade2->id}", $dadosAtualizados);
+        $response = $this->putJson("/api/propriedades/{$propriedade2->id}", $dadosAtualizados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['inscricao_estadual']);
@@ -242,7 +252,7 @@ class PropriedadeControllerTest extends TestCase
     {
         $propriedade = Propriedade::factory()->create();
 
-        $response = $this->deleteJson("/api/propriedades/{$propriedade->id}");
+        $response = $this->deleteJson("/api/propriedades/{$propriedade->id}", [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(204);
 
@@ -253,7 +263,7 @@ class PropriedadeControllerTest extends TestCase
 
     public function test_retorna_404_ao_deletar_propriedade_inexistente(): void
     {
-        $response = $this->deleteJson('/api/propriedades/999');
+        $response = $this->deleteJson('/api/propriedades/999', [], $this->authHeaders(UserRole::ADMIN));
 
         $response->assertStatus(404);
     }
@@ -270,7 +280,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => $produtor->id,
         ];
 
-        $response = $this->postJson('/api/propriedades', $dados);
+        $response = $this->postJson('/api/propriedades', $dados, $this->authHeaders());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['uf']);
@@ -288,7 +298,7 @@ class PropriedadeControllerTest extends TestCase
             'produtor_id' => $produtor->id,
         ];
 
-        $response = $this->postJson('/api/propriedades', $dados);
+        $response = $this->postJson('/api/propriedades', $dados, $this->authHeaders());
 
         $response->assertStatus(201)
             ->assertJson([
