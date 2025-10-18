@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\UserRole;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -48,6 +49,20 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
         ];
+    }
+
+    /**
+     * Get the role attribute with guaranteed enum conversion.
+     *
+     * This accessor ensures that the role is always returned as an Enum,
+     * even if the casting hasn't been applied yet by Laravel.
+     */
+    protected function role(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => is_string($value) ? UserRole::from($value) : $value,
+            set: fn ($value) => is_string($value) ? $value : $value->value,
+        );
     }
 
     /**

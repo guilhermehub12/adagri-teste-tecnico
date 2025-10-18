@@ -7,6 +7,52 @@ Sistema completo de gestão agropecuária com Laravel (backend) e Vue 3 (fronten
 - Docker
 - Docker Compose
 
+## 🚀 Instalação Rápida
+
+### Setup Inicial (Primeira vez)
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/guilhermehub12/adagri-teste-tecnico
+cd adagri-teste-tecnico
+
+# 2. Subir containers
+docker compose up -d --build
+
+# 3. Executar setup automático
+./scripts/setup.sh
+```
+
+### Problema de Permissões?
+
+Se encontrar erros relacionados a permissões (como `Permission denied` ao acessar arquivos):
+
+```bash
+./scripts/fix-permissions.sh
+docker compose exec app php artisan optimize:clear
+```
+
+## 🔐 Contas de Teste
+
+Após rodar o seeder, você terá 4 contas disponíveis:
+
+| Perfil | Email | Senha | Permissões |
+|--------|-------|-------|------------|
+| **Admin** | admin@adagri.ce.gov.br | password123 | Acesso total + gerenciar usuários |
+| **Gestor** | gestor@adagri.ce.gov.br | password123 | Criar, editar, visualizar |
+| **Técnico** | tecnico@adagri.ce.gov.br | password123 | Criar e visualizar |
+| **Extensionista** | extensionista@adagri.ce.gov.br | password123 | Somente visualizar + relatórios |
+
+## 📮 Testando a API
+
+1. Importe a Collection do Postman: `ADAGRI_API.postman_collection.json`
+2. Importe o Environment: `ADAGRI_Environment.postman_environment.json`
+3. Selecione o environment "ADAGRI - Development"
+4. Execute "Login como Admin" (ou qualquer outro perfil)
+5. Comece a testar!
+
+**Guia completo:** [`docs/POSTMAN_GUIDE.md`](docs/POSTMAN_GUIDE.md)
+
 ## Ambiente de Desenvolvimento
 
 ### 1. Subir os containers
