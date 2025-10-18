@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PropriedadeController;
 use App\Http\Controllers\Api\RebanhoController;
 use App\Http\Controllers\Api\RelatorioController;
 use App\Http\Controllers\Api\UnidadeProducaoController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Authentication
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
+
+    // User Management (Admin only)
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('users', UserController::class);
+    });
 
     // CRUD Produtor Rural
     Route::apiResource('produtores-rurais', ProdutorRuralController::class)
