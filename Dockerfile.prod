@@ -5,7 +5,10 @@ RUN apk add --no-cache \
     oniguruma-dev \
     icu-dev \
     libzip-dev \
-    libpng-dev
+    libpng-dev \
+    libjpeg-turbo-dev
+
+RUN docker-php-ext-configure gd --with-jpeg
 
 RUN docker-php-ext-install \
     pdo \
@@ -13,7 +16,8 @@ RUN docker-php-ext-install \
     pgsql \
     mbstring \
     zip \
-    intl
+    intl \
+    gd
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -33,7 +37,9 @@ RUN apk add --no-cache \
     postgresql-libs \
     libzip \
     icu-libs \
-    oniguruma
+    oniguruma \
+    libpng \
+    libjpeg-turbo
 
 COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20230831/ /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/

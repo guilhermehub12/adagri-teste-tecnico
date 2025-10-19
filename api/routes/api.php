@@ -29,6 +29,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('produtores-rurais', ProdutorRuralController::class)
         ->parameters(['produtores-rurais' => 'produtor-rural']);
 
+    // Foto do Produtor
+    Route::post('produtores/{produtorRural}/foto', [ProdutorRuralController::class, 'uploadFoto']);
+    Route::delete('produtores/{produtorRural}/foto', [ProdutorRuralController::class, 'deleteFoto']);
+
     // CRUD Propriedades
     Route::apiResource('propriedades', PropriedadeController::class);
 

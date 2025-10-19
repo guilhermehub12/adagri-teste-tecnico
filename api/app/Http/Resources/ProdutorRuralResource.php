@@ -17,6 +17,8 @@ class ProdutorRuralResource extends JsonResource
             'email' => $this->email,
             'endereco' => $this->endereco,
             'data_cadastro' => $this->data_cadastro?->toISOString(),
+            'foto' => $this->foto,
+            'foto_url' => $this->foto ? asset('storage/' . $this->foto) : null,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

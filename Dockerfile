@@ -3,12 +3,15 @@ FROM php:8.3-fpm-alpine
 RUN apk add --no-cache \
     curl \
     libpng-dev \
+    libjpeg-turbo-dev \
     libzip-dev \
     zip \
     unzip \
     postgresql-dev \
     oniguruma-dev \
     icu-dev
+
+RUN docker-php-ext-configure gd --with-jpeg
 
 RUN docker-php-ext-install \
     pdo \

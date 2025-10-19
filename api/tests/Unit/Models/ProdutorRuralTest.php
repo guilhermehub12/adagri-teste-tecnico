@@ -41,6 +41,7 @@ class ProdutorRuralTest extends TestCase
             'email',
             'endereco',
             'data_cadastro',
+            'foto',
         ];
 
         $this->assertEquals($fillable, $produtor->getFillable());
