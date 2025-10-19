@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ProdutorRuralController;
 use App\Http\Controllers\Api\PropriedadeController;
 use App\Http\Controllers\Api\RebanhoController;
 use App\Http\Controllers\Api\RelatorioController;
 use App\Http\Controllers\Api\UnidadeProducaoController;
 use App\Http\Controllers\Api\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -19,6 +19,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Authentication
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
+
+    // Dashboard Statistics
+    Route::get('dashboard/stats', [DashboardController::class, 'stats']);
 
     // User Management (Admin only)
     Route::middleware('role:admin')->group(function () {
