@@ -17,19 +17,26 @@ git clone https://github.com/guilhermehub12/adagri-teste-tecnico
 cd adagri-teste-tecnico
 
 # 2. Subir containers
-docker compose up -d --build
+make up-build
 
 # 3. Executar setup automático
-./scripts/setup.sh
+make setup
+```
+
+**Pronto!** 🎉 A API está disponível em `http://localhost:8000/api`
+
+### Ver todos os comandos disponíveis
+
+```bash
+make help
 ```
 
 ### Problema de Permissões?
 
-Se encontrar erros relacionados a permissões (como `Permission denied` ao acessar arquivos):
+Se encontrar erros relacionados a permissões:
 
 ```bash
-./scripts/fix-permissions.sh
-docker compose exec app php artisan optimize:clear
+make permissions
 ```
 
 ## 🔐 Contas de Teste
@@ -58,24 +65,30 @@ Após rodar o seeder, você terá 4 contas disponíveis:
 ### 1. Subir os containers
 
 ```bash
-docker compose up -d --build
+make up-build
 ```
 
 ### 2. Executar migrations
 
 ```bash
-docker compose exec app php artisan migrate
+make migrate
 ```
 
 ### 3. (Opcional) Executar seeders
 
 ```bash
-docker compose exec app php artisan db:seed
+make seed
+```
+
+**Ou execute tudo de uma vez:**
+
+```bash
+make setup
 ```
 
 ### Acesso (Dev)
 
-- **API**: http://localhost:8000
+- **API**: http://localhost:8000/api
 - **Banco de Dados PostgreSQL**: localhost:5432
   - Database: `adagri_db`
   - Username: `adagri_user`
@@ -93,19 +106,19 @@ docker compose exec app php artisan db:seed
 ### 1. Build e subir os containers
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d --build
+make prod-up
 ```
 
 ### 2. Executar migrations
 
 ```bash
-docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
+make prod-migrate
 ```
 
 ### 3. Executar seeders
 
 ```bash
-docker compose -f docker-compose.prod.yml exec app php artisan db:seed --force
+make prod-seed
 ```
 
 ### Acesso (Prod)
@@ -134,24 +147,46 @@ docker compose -f docker-compose.prod.yml exec app php artisan db:seed --force
 
 ## Comandos Úteis
 
+### Principais Comandos
+
+```bash
+make help          # Ver todos os comandos disponíveis
+make setup         # Setup completo do projeto
+make test          # Executar testes
+make migrate       # Rodar migrations
+make seed          # Popular banco de dados
+make fresh         # Resetar DB (drop + migrate + seed)
+```
+
+### Docker
+
+```bash
+make up            # Subir containers
+make down          # Parar containers
+make restart       # Reiniciar containers
+make logs          # Ver logs
+make shell         # Acessar shell do container
+make ps            # Listar containers
+```
+
 ### Desenvolvimento
 
 ```bash
-docker compose up -d --build              # Subir containers
-docker compose down                       # Parar containers
-docker compose logs -f                    # Ver logs
-docker compose exec app php artisan [cmd] # Executar artisan
-docker compose exec app sh                # Acessar container
+make tinker        # Abrir Laravel Tinker
+make routes        # Listar todas as rotas
+make clear-cache   # Limpar todos os caches
+make optimize      # Otimizar aplicação
+make permissions   # Corrigir permissões
 ```
 
 ### Produção
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d --build              # Subir containers
-docker compose -f docker-compose.prod.yml down                       # Parar containers
-docker compose -f docker-compose.prod.yml logs -f                    # Ver logs
-docker compose -f docker-compose.prod.yml exec app php artisan [cmd] # Executar artisan
-docker compose -f docker-compose.prod.yml exec app sh                # Acessar container
+make prod-up       # Subir containers de produção
+make prod-down     # Parar containers de produção
+make prod-logs     # Ver logs de produção
+make prod-migrate  # Rodar migrations em produção
+make prod-seed     # Popular banco em produção
 ```
 
 ## Entidades
