@@ -1,6 +1,6 @@
 # Sistema de Gestão Agropecuária - ADAGRI
 
-Sistema completo de gestão agropecuária com Laravel (backend) e Vue 3 (frontend).
+Sistema completo de gestão agropecuária com Laravel 12 (backend) e Vue 3 (frontend).
 
 ## Requisitos
 
