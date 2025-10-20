@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice';
 import 'primeicons/primeicons.css'
 import Aura from '@primeuix/themes/aura';
 import VueApexCharts from 'vue3-apexcharts'
@@ -19,6 +20,7 @@ app.use(PrimeVue, {
         preset: Aura
     }
 });
+app.use(ConfirmationService);
 app.use(VueApexCharts)
 
 app.mount('#app')
