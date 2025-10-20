@@ -1,71 +1,101 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-2xl space-y-8 bg-white p-12 rounded-lg shadow-md">
-      <div>
-        <h2 class="mt-6 text-center text-4xl font-extrabold text-gray-900">
-          Sistema ADAGRI
-        </h2>
-        <p class="mt-3 text-center text-lg text-gray-600">
-          Faça login para continuar
-        </p>
+  <div class="login-container">
+    <!-- Background decorativo -->
+    <div class="login-background">
+      <div class="bg-circle circle-1"></div>
+      <div class="bg-circle circle-2"></div>
+      <div class="bg-circle circle-3"></div>
+      <div class="bg-line line-1"></div>
+      <div class="bg-line line-2"></div>
+    </div>
+
+    <!-- Card de Login -->
+    <div class="login-card">
+      <!-- Logo/Ícone -->
+      <div class="login-logo">
+        <div class="logo-icon">
+          <i class="pi pi-sitemap"></i>
+        </div>
       </div>
 
-      <form class="mt-8 space-y-6" @submit.prevent="handleSubmit">
-        <div class="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label for="email-address" class="sr-only">Email</label>
-            <input
-              id="email-address"
-              v-model="formData.email"
-              type="email"
-              required
-              class="appearance-none rounded-none relative block w-full px-5 py-4 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-lg"
-              placeholder="Email"
-            />
-            <div v-if="errors.email" class="text-red-600 text-base mt-2 px-1">
-              {{ errors.email }}
-            </div>
-          </div>
+      <!-- Título -->
+      <div class="login-header">
+        <h1 class="login-title">Sistema Agropecuário</h1>
+        <p class="login-subtitle">Faça login para continuar</p>
+      </div>
 
-          <div>
-            <label for="password" class="sr-only">Senha</label>
-            <input
-              id="password"
-              v-model="formData.password"
-              type="password"
-              required
-              class="appearance-none rounded-none relative block w-full px-5 py-4 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-lg"
-              placeholder="Senha"
-            />
-            <div v-if="errors.password" class="text-red-600 text-base mt-2 px-1">
-              {{ errors.password }}
-            </div>
-          </div>
+      <!-- Formulário -->
+      <form @submit.prevent="handleSubmit" class="login-form">
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email-address" class="form-label">
+            Email ou usuário
+          </label>
+          <InputText
+            id="email-address"
+            v-model="formData.email"
+            type="email"
+            placeholder="email@exemplo.comm"
+            class="form-input"
+            :class="{ 'p-invalid': errors.email }"
+          />
+          <small v-if="errors.email" class="form-error">
+            {{ errors.email }}
+          </small>
         </div>
 
-        <div v-if="errorMessage" class="text-red-600 text-base text-center font-medium">
+        <!-- Senha -->
+        <div class="form-group">
+          <label for="password" class="form-label">
+            Senha
+          </label>
+          <Password
+            id="password"
+            v-model="formData.password"
+            placeholder="senha123@"
+            :feedback="false"
+            toggleMask
+            class="w-full"
+            :class="{ 'p-invalid': errors.password }"
+            inputClass="form-input"
+          />
+          <small v-if="errors.password" class="form-error">
+            {{ errors.password }}
+          </small>
+        </div>
+
+        <!-- Error Message -->
+        <Message v-if="errorMessage" severity="error" :closable="false" class="login-error">
           {{ errorMessage }}
-        </div>
+        </Message>
 
-        <div>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="group relative w-full flex justify-center py-4 px-6 border border-transparent text-lg font-semibold rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {{ loading ? 'Carregando...' : 'Entrar' }}
-          </button>
-        </div>
+        <!-- Submit Button -->
+        <Button
+          type="submit"
+          :loading="loading"
+          label="Entrar"
+          icon="pi pi-sign-in"
+          class="login-submit"
+          size="large"
+        />
       </form>
+
+      <!-- Footer -->
+      <div class="login-footer">
+        <p>Não tem uma conta? <RouterLink to="/register" class="text-green-400 hover:text-green-300">Crie uma agora</RouterLink></p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
+import InputText from 'primevue/inputtext'
+import Password from 'primevue/password'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
 import { useAuthStore } from '@/stores/auth'
-import { login } from '@/services/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -120,8 +150,7 @@ async function handleSubmit() {
   errorMessage.value = ''
 
   try {
-    const response = await login(formData)
-    authStore.login(response.token, response.user)
+    await authStore.login(formData)
     router.push('/')
   } catch (error: any) {
     errorMessage.value = error.response?.data?.message || 'Erro ao fazer login'
