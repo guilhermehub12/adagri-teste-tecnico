@@ -1,0 +1,94 @@
+# ============================================================================
+# STAGE 1: BUILDER - Compila extensões PHP
+# ============================================================================
+FROM php:8.3-fpm-alpine AS builder
+
+# Instalar dependências de BUILD (pacotes -dev necessários para compilar)
+RUN apk add --no-cache \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libzip-dev \
+    postgresql-dev \
+    oniguruma-dev \
+    icu-dev
+
+# Compilar extensões PHP
+RUN docker-php-ext-configure gd --with-jpeg && \
+    docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_pgsql \
+    pgsql \
+    mbstring \
+    zip \
+    intl \
+    gd \
+    opcache
+
+# ============================================================================
+# STAGE 2: RUNTIME - Imagem final de produção 
+# ============================================================================
+FROM php:8.3-fpm-alpine
+
+# Instalar APENAS bibliotecas RUNTIME (sem -dev)
+RUN apk add --no-cache \
+    libpng \
+    libjpeg-turbo \
+    libzip \
+    postgresql-libs \
+    oniguruma \
+    icu-libs \
+    postgresql-client \
+    curl
+
+# Copiar extensões PHP compiladas do stage anterior
+COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+
+# Copiar Composer do imagem oficial
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Copiar dependências primeiro (melhor cache)
+COPY composer.json composer.lock ./
+
+# Instalar APENAS dependências de PRODUÇÃO
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist
+
+# Copiar código da aplicação
+COPY . .
+
+# Gerar autoloader otimizado
+RUN composer dump-autoload \
+    --optimize \
+    --classmap-authoritative \
+    --no-dev
+
+# Configurar permissões
+RUN chown -R www-data:www-data \
+    storage \
+    bootstrap/cache
+
+# Configurar OPcache para produção
+RUN { \
+        echo 'opcache.enable=1'; \
+        echo 'opcache.memory_consumption=256'; \
+        echo 'opcache.interned_strings_buffer=16'; \
+        echo 'opcache.max_accelerated_files=10000'; \
+        echo 'opcache.validate_timestamps=0'; \
+        echo 'opcache.save_comments=1'; \
+        echo 'opcache.fast_shutdown=1'; \
+    } > /usr/local/etc/php/conf.d/opcache.ini
+
+# Copiar entrypoint de produção
+COPY entrypoint.prod.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 9000
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
