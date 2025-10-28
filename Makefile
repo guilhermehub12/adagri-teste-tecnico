@@ -170,6 +170,29 @@ logs: ## Mostra logs dos containers
 ps: ## Lista containers em execução
 	@$(DOCKER_COMPOSE) ps
 
+##@ 🚀 Produção
+
+.PHONY: prod-up
+prod-up: ## Sobe containers em modo PRODUÇÃO
+	@echo "$(YELLOW)🚀 Starting PRODUCTION containers...$(NC)"
+	@$(DOCKER_COMPOSE_PROD) up -d --build
+	@echo "$(GREEN)✅ Production containers running!$(NC)"
+	@echo "$(BLUE)Acessível em: http://localhost$(NC)"
+
+.PHONY: prod-down
+prod-down: ## Para containers de produção
+	@echo "$(YELLOW)🛑 Stopping PRODUCTION containers...$(NC)"
+	@$(DOCKER_COMPOSE_PROD) down
+	@echo "$(GREEN)✅ Production containers stopped!$(NC)"
+
+.PHONY: prod-logs
+prod-logs: ## Mostra logs dos containers de produção
+	@$(DOCKER_COMPOSE_PROD) logs -f
+
+.PHONY: prod-ps
+prod-ps: ## Lista containers de produção
+	@$(DOCKER_COMPOSE_PROD) ps
+
 ##@ 🔧 Desenvolvimento
 
 .PHONY: shell
