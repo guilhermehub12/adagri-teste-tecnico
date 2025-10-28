@@ -33,19 +33,94 @@ const routes: RouteRecordRaw[] = [
         component: DashboardView
       },
       {
-        path: 'produtores-rurais/novo',
-        name: 'produtores-rurais-create',
-        component: () => import('@/views/ProdutoresRurais/ProdutorRuralCreateView.vue')
+        path: 'produtores',
+        name: 'produtores',
+        component: () => import('@/views/Produtores/ProdutoresListView.vue')
+      },
+      {
+        path: 'produtores/novo',
+        name: 'produtores-create',
+        component: () => import('@/views/Produtores/ProdutorForm.vue')
+      },
+      {
+        path: 'produtores/:id/editar',
+        name: 'produtores-edit',
+        component: () => import('@/views/Produtores/ProdutorForm.vue'),
+        props: true
+      },
+      {
+        path: 'propriedades',
+        name: 'propriedades',
+        component: () => import('@/views/Propriedades/PropriedadesListView.vue')
       },
       {
         path: 'propriedades/novo',
         name: 'propriedades-create',
-        component: () => import('@/views/Propriedades/PropriedadeCreateView.vue')
+        component: () => import('@/views/Propriedades/PropriedadeForm.vue')
+      },
+      {
+        path: 'propriedades/:id/editar',
+        name: 'propriedades-edit',
+        component: () => import('@/views/Propriedades/PropriedadeForm.vue'),
+        props: true
+      },
+      {
+        path: 'rebanhos',
+        name: 'rebanhos',
+        component: () => import('@/views/Rebanhos/RebanhosListView.vue')
+      },
+      {
+        path: 'rebanhos/novo',
+        name: 'rebanhos-create',
+        component: () => import('@/views/Rebanhos/RebanhoForm.vue')
+      },
+      {
+        path: 'rebanhos/:id/editar',
+        name: 'rebanhos-edit',
+        component: () => import('@/views/Rebanhos/RebanhoForm.vue'),
+        props: true
+      },
+      {
+        path: 'unidades-producao',
+        name: 'unidades-producao',
+        component: () => import('@/views/UnidadesProducao/UnidadesProducaoListView.vue')
       },
       {
         path: 'unidades-producao/novo',
         name: 'unidades-producao-create',
-        component: () => import('@/views/UnidadesProducao/UnidadeProducaoCreateView.vue')
+        component: () => import('@/views/UnidadesProducao/UnidadeProducaoForm.vue')
+      },
+      {
+        path: 'unidades-producao/:id/editar',
+        name: 'unidades-producao-edit',
+        component: () => import('@/views/UnidadesProducao/UnidadeProducaoForm.vue'),
+        props: true
+      },
+      {
+        path: 'relatorios',
+        name: 'relatorios',
+        component: () => import('@/views/Relatorios/RelatoriosView.vue')
+      },
+      {
+        path: 'usuarios',
+        name: 'usuarios',
+        component: () => import('@/views/Usuarios/UsuariosListView.vue')
+      },
+      {
+        path: 'usuarios/novo',
+        name: 'usuarios-create',
+        component: () => import('@/views/Usuarios/UsuarioForm.vue')
+      },
+      {
+        path: 'usuarios/:id/editar',
+        name: 'usuarios-edit',
+        component: () => import('@/views/Usuarios/UsuarioForm.vue'),
+        props: true
+      },
+      {
+        path: 'configuracoes',
+        name: 'configuracoes',
+        component: () => import('@/views/Configuracoes/ConfiguracoesView.vue')
       }
     ]
   }

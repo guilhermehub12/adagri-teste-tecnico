@@ -77,13 +77,6 @@
               <span class="nav-label">Rebanhos</span>
             </RouterLink>
           </li>
-        </ul>
-      </div>
-
-      <!-- Gestão Section -->
-      <div class="nav-section">
-        <h3 class="nav-section-title">Gestão</h3>
-        <ul class="nav-list">
           <li>
             <RouterLink
               to="/unidades-producao"
@@ -91,10 +84,17 @@
               class="nav-item"
               :class="{ active: isRouteActive('/unidades-producao') }"
             >
-              <i class="pi pi-file-edit nav-icon"></i>
+              <i class="pi pi-th-large nav-icon"></i>
               <span class="nav-label">Unidades de Produção</span>
             </RouterLink>
           </li>
+        </ul>
+      </div>
+
+      <!-- Gestão Section -->
+      <div class="nav-section">
+        <h3 class="nav-section-title">Gestão</h3>
+        <ul class="nav-list">
           <li>
             <RouterLink
               to="/relatorios"
