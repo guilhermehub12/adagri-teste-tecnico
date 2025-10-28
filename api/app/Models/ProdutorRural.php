@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProdutorRural extends Model
 {
-    use HasFactory;
+    use HasFactory, Filterable;
 
     protected $table = 'produtores_rurais';
 

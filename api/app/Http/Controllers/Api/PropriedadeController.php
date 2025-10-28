@@ -16,9 +16,12 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PropriedadeController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $propriedades = Propriedade::all();
+        $filters = $request->all();
+        $perPage = $request->input('per_page', 15);
+
+        $propriedades = Propriedade::filter($filters)->paginate($perPage);
         return PropriedadeResource::collection($propriedades);
     }
 

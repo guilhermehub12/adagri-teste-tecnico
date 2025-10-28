@@ -7,14 +7,19 @@ use App\Http\Requests\StoreUnidadeProducaoRequest;
 use App\Http\Requests\UpdateUnidadeProducaoRequest;
 use App\Http\Resources\UnidadeProducaoResource;
 use App\Models\UnidadeProducao;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class UnidadeProducaoController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $unidades = UnidadeProducao::all();
+        $filters = $request->all();
+        $perPage = $request->input('per_page', 15);
+        
+        $unidades = UnidadeProducao::filter($filters)->paginate($perPage);
+        
         return UnidadeProducaoResource::collection($unidades);
     }
 
