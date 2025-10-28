@@ -9,9 +9,15 @@ export interface ProdutorRural {
   endereco: string;
 }
 
-export const getProdutores = async () => {
-  const response = await api.get('/produtores-rurais');
-  return response.data;
+export const getProdutores = async (page: number = 1, perPage: number = 15, filters: Record<string, any> = {}) => {
+  const response = await api.get('/produtores-rurais', {
+    params: {
+      page,
+      per_page: perPage,
+      ...filters,
+    },
+  });
+  return response;
 };
 
 export const getProdutor = async (id: number) => {

@@ -5,6 +5,21 @@
       <Button label="Novo Produtor" icon="pi pi-plus" @click="showCreateModal = true" />
     </div>
 
+    <div class="p-fluid p-formgrid grid mb-4">
+      <div class="p-field col-12 md:col-4">
+        <label for="filterNome">Nome</label>
+        <InputText id="filterNome" v-model="filters.nome" @input="onFilterChange" />
+      </div>
+      <div class="p-field col-12 md:col-4">
+        <label for="filterCpfCnpj">CPF/CNPJ</label>
+        <InputText id="filterCpfCnpj" v-model="filters.cpf_cnpj" @input="onFilterChange" />
+      </div>
+      <div class="p-field col-12 md:col-4">
+        <label for="filterEmail">Email</label>
+        <InputText id="filterEmail" v-model="filters.email" @input="onFilterChange" />
+      </div>
+    </div>
+
     <DataTable :value="produtorStore.produtores" :loading="produtorStore.loading" responsiveLayout="scroll">
       <Column field="id" header="ID"></Column>
       <Column field="nome" header="Nome"></Column>
@@ -19,6 +34,14 @@
       </Column>
     </DataTable>
 
+    <Paginator
+      v-if="produtorStore.pagination.total > 0"
+      :rows="produtorStore.pagination.per_page"
+      :totalRecords="produtorStore.pagination.total"
+      :rowsPerPageOptions="[10, 15, 20, 30]"
+      @page="onPageChange"
+    ></Paginator>
+
     <Dialog header="Novo Produtor" v-model:visible="showCreateModal" :modal="true" :style="{ width: '50vw' }">
       <ProdutorForm @submit="create" />
     </Dialog>
@@ -32,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { useProdutorStore } from '@/stores/produtor';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -42,6 +65,8 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import ProdutorForm from './ProdutorForm.vue';
 import type { ProdutorRural } from '@/services/produtorService';
+import InputText from 'primevue/inputtext';
+import Paginator from 'primevue/paginator';
 
 const produtorStore = useProdutorStore();
 const confirm = useConfirm();
@@ -50,9 +75,29 @@ const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const selectedProdutor = ref<ProdutorRural | null>(null);
 
+const filters = reactive({
+  nome: '',
+  cpf_cnpj: '',
+  email: '',
+});
+
+let filterTimeout: ReturnType<typeof setTimeout>;
+
 onMounted(() => {
   produtorStore.fetchProdutores();
 });
+
+const onFilterChange = () => {
+  clearTimeout(filterTimeout);
+  filterTimeout = setTimeout(() => {
+    console.log('Applying filters:', filters);
+    produtorStore.fetchProdutores(1, produtorStore.pagination.per_page, filters);
+  }, 500);
+};
+
+const onPageChange = (event: any) => {
+  produtorStore.fetchProdutores(event.page + 1, event.rows, filters);
+};
 
 const create = async (produtor: Omit<ProdutorRural, 'id'>) => {
   await produtorStore.addProdutor(produtor);

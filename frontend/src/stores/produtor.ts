@@ -6,12 +6,26 @@ export const useProdutorStore = defineStore('produtor', () => {
   const produtores = ref<ProdutorRural[]>([]);
   const produtor = ref<ProdutorRural | null>(null);
   const loading = ref(false);
+  const pagination = ref({
+    current_page: 1,
+    per_page: 15,
+    total: 0,
+    last_page: 1,
+  });
 
-  async function fetchProdutores() {
+  async function fetchProdutores(page: number = 1, perPage: number = 15, filters: Record<string, any> = {}) {
     loading.value = true;
     try {
-      const response = await getProdutores();
-      produtores.value = response.data;
+      console.log('Fetching produtores with:', { page, perPage, filters });
+      const response = await getProdutores(page, perPage, filters);
+      console.log('API Response:', response);
+      produtores.value = response.data.data;
+      pagination.value = {
+        current_page: response.data.meta.current_page,
+        per_page: response.data.meta.per_page,
+        total: response.data.meta.total,
+        last_page: response.data.meta.last_page,
+      };
     } catch (error) {
       console.error('Error fetching produtores:', error);
     } finally {
@@ -35,7 +49,7 @@ export const useProdutorStore = defineStore('produtor', () => {
     loading.value = true;
     try {
       await createProdutor(newProdutor);
-      await fetchProdutores();
+      await fetchProdutores(pagination.value.current_page, pagination.value.per_page);
     } catch (error) {
       console.error('Error creating produtor:', error);
     } finally {
@@ -47,7 +61,7 @@ export const useProdutorStore = defineStore('produtor', () => {
     loading.value = true;
     try {
       await updateProdutor(id, updatedProdutor);
-      await fetchProdutores();
+      await fetchProdutores(pagination.value.current_page, pagination.value.per_page);
     } catch (error) {
       console.error(`Error updating produtor with id ${id}:`, error);
     } finally {
@@ -59,7 +73,7 @@ export const useProdutorStore = defineStore('produtor', () => {
     loading.value = true;
     try {
       await deleteProdutor(id);
-      await fetchProdutores();
+      await fetchProdutores(pagination.value.current_page, pagination.value.per_page);
     } catch (error) {
       console.error(`Error deleting produtor with id ${id}:`, error);
     } finally {
@@ -71,6 +85,7 @@ export const useProdutorStore = defineStore('produtor', () => {
     produtores,
     produtor,
     loading,
+    pagination,
     fetchProdutores,
     fetchProdutor,
     addProdutor,
