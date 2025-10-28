@@ -12,12 +12,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class ProdutorRuralController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $produtores = ProdutorRural::all();
+        $filters = $request->only(['nome', 'cpf_cnpj', 'email']);
+        $perPage = $request->input('per_page', 15);
+
+        $produtores = ProdutorRural::filter($filters)->paginate($perPage);
+        $produtores->withQueryString();
         return ProdutorRuralResource::collection($produtores);
     }
 

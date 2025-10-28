@@ -1,0 +1,30 @@
+# STAGE 1: BUILD - Compila aplicação Vue
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copiar dependências primeiro (cache layer)
+COPY package*.json ./
+
+# Instalar dependências de produção e build
+RUN npm ci
+
+# Copiar código fonte
+COPY . .
+
+# Build da aplicação Vue para produção
+# Gera arquivos otimizados em /app/dist
+RUN npm run build
+
+# STAGE 2: RUNTIME - Nginx para servir arquivos estáticos
+FROM nginx:alpine
+
+# Copiar arquivos buildados do stage anterior
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copiar configuração customizada do Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expor porta 80
+EXPOSE 80
+

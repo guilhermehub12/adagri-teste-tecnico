@@ -16,12 +16,25 @@ services:
   app:
     build:
       context: ./api
-      dockerfile: ../Dockerfile
+      dockerfile: Dockerfile
     container_name: adagri_app
     volumes:
       - ./api:/var/www/html
     depends_on:
       - postgres
+    networks:
+      - adagri_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: adagri_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
     networks:
       - adagri_network
 
@@ -31,10 +44,11 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./api:/var/www/html
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./api:/var/www/html
     depends_on:
       - app
+      - frontend
     networks:
       - adagri_network
 

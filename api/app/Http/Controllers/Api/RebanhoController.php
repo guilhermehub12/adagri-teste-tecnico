@@ -15,9 +15,12 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class RebanhoController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $rebanhos = Rebanho::all();
+        $filters = $request->all();
+        $perPage = $request->input('per_page', 15);
+        
+        $rebanhos = Rebanho::filter($filters)->paginate($perPage);
         return RebanhoResource::collection($rebanhos);
     }
 
